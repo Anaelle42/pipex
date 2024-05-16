@@ -1,11 +1,12 @@
 NAME = pipex
 
-SRC = main.c
+SRC = pipex.c \
+	pipex_utils.c
 
 OBJ =  $(SRC:.c=.o)
 
 CC = cc 
-CFLAGS = -Wall -Werror -Wextra 
+CFLAGS = -Wall -Werror -Wextra -g
 LIB = libft/libft.a
 
 all : $(NAME)
