@@ -6,11 +6,17 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/06 20:52:22 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/16 18:51:35 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/17 23:35:32 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+void	print_error(char *error)
+{
+	perror(error);
+	exit(1);
+}
 
 void	free_all(char **tab)
 {
@@ -63,5 +69,6 @@ char	*get_path(char **all_paths, char *cmd)
 	}
 	if (cmd && access(cmd, X_OK) == 0)
 		return (cmd);
+	perror(&cmd[0]);
 	return (0);
 }
