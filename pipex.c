@@ -37,7 +37,7 @@ int	exec_cmd(char *argv, char **envp)
 		free_all(all_paths);
 		free_all(cmd);
 	}
-	return (0);
+	exit (1);
 }
 
 int	cmd1(char **argv, int *pipe)
