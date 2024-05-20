@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:13:03 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/20 14:21:41 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/20 19:58:49 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,10 @@ int	exec_cmd(char *argv, char **envp)
 	char	*path;
 	char	**all_paths;
 
-	all_paths = get_all_paths(envp);
 	cmd = ft_split(argv, ' ');
 	if (!cmd)
-	{
-		free_all(all_paths);
 		return (0);
-	}
+	all_paths = get_all_paths(envp);
 	path = get_path(all_paths, cmd[0]);
 	if (!path)
 	{
@@ -47,10 +44,13 @@ int	cmd1(char **argv, int *pipe)
 {
 	int	fd;
 
+	close(pipe[0]);
 	fd = open(argv[1], O_RDONLY);
 	if (fd == -1)
+	{
+		close(pipe[1]);
 		print_error(argv[1]);
-	close(pipe[0]);
+	}
 	if (dup2(fd, 0) == -1)
 		return (0);
 	if (dup2(pipe[1], 1) == -1)
@@ -64,10 +64,13 @@ int	cmd2(char **argv, int *pipe)
 {
 	int	fd;
 
+	close(pipe[1]);
 	fd = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
 	if (fd == -1)
+	{
+		close(pipe[0]);
 		print_error(argv[1]);
-	close(pipe[1]);
+	}
 	if (dup2(pipe[0], 0) == -1)
 		return (0);
 	if (dup2(fd, 1) == -1)
