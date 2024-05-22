@@ -6,13 +6,29 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:13:03 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/20 19:58:49 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/21 18:48:26 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <errno.h>
+#include <string.h>
 
-// erreurs dont infile X
+// erreurs
+
+int	absolute_vodkapath(char **cmd, char **envp)
+{
+	if (execve(cmd[0], cmd, envp) == 0)
+	{
+		free_all(cmd);
+		return (0);
+	}
+	else
+	{
+		perror("?");
+		exit(1);
+	}
+}
 
 int	exec_cmd(char *argv, char **envp)
 {
@@ -23,6 +39,8 @@ int	exec_cmd(char *argv, char **envp)
 	cmd = ft_split(argv, ' ');
 	if (!cmd)
 		return (0);
+	// if (cmd[0][0] == '.' || cmd[0][0] == '/')
+	// 	absolute_vodkapath(cmd, envp);
 	all_paths = get_all_paths(envp);
 	path = get_path(all_paths, cmd[0]);
 	if (!path)
@@ -33,11 +51,12 @@ int	exec_cmd(char *argv, char **envp)
 	}
 	if (execve(path, cmd, envp) == -1)
 	{
+		perror("Command not found");
 		free(path);
 		free_all(all_paths);
 		free_all(cmd);
 	}
-	exit (1);
+	exit(1);
 }
 
 int	cmd1(char **argv, int *pipe)
@@ -82,7 +101,7 @@ int	cmd2(char **argv, int *pipe)
 
 int	main(int argc, char **argv, char **envp)
 {
-	pid_t	pid;
+	pid_t	pids[2];
 	int		fd[2];
 
 	if (!*envp)
@@ -91,18 +110,27 @@ int	main(int argc, char **argv, char **envp)
 		return (0);
 	if (pipe(fd) == -1)
 		return (0);
-	pid = fork();
-	if (pid == -1)
+	pids[0] = fork();
+	if (pids[0] == -1)
 		return (0);
-	if (pid == 0)
+	if (pids[0] == 0)
 	{
 		cmd1(argv, fd);
 		exec_cmd(argv[2], envp);
 	}
 	else
 	{
-		cmd2(argv, fd);
-		exec_cmd(argv[3], envp);
+		pids[1] = fork();
+		if (pids[1] == -1)
+			return (0);
+		if (pids[1] == 0)
+		{
+			cmd2(argv, fd);
+			exec_cmd(argv[3], envp);
+		}
 	}
-	waitpid(pid, NULL, 0);
+	close(fd[0]);
+	close(fd[1]);
+	waitpid(pids[0], NULL, 0);
+	waitpid(pids[1], NULL, 0);
 }
