@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/06 20:52:22 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/17 23:35:32 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/24 17:46:41 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,16 @@ void	print_error(char *error)
 {
 	perror(error);
 	exit(1);
+}
+
+void	affichage_dans_un_fd(char *s1, char *s2)
+{
+	char	*str;
+
+	str = ft_strjoin(s1, s2);
+	ft_putstr_fd(str, 2);
+	ft_putstr_fd("\n", 2);
+	free(str);
 }
 
 void	free_all(char **tab)
@@ -67,8 +77,6 @@ char	*get_path(char **all_paths, char *cmd)
 		free(path);
 		i++;
 	}
-	if (cmd && access(cmd, X_OK) == 0)
-		return (cmd);
-	perror(&cmd[0]);
+	affichage_dans_un_fd("command not found : ", cmd);
 	return (0);
 }
