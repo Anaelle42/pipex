@@ -1,7 +1,8 @@
 NAME = pipex
 
 SRC = pipex.c \
-	pipex_utils.c
+	pipex_utils.c \
+	path.c \
 
 OBJ =  $(SRC:.c=.o)
 
