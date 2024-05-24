@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/01 17:57:23 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/24 17:29:24 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/24 18:38:20 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,13 @@
 # include <stdio.h>
 # include <sys/wait.h>
 
-char	*get_path(char **all_paths, char *cmd);
-char	**get_all_paths(char **envp);
-void	free_all(char **tab);
+# define ERROR1 "Invalid arguments : "
+# define ARGUMENTS "./pipex infile cmd cmd outfile"
+
+void	absolut_vodkapath(char **cmd, char **envp);
+void	cmd_path(char **cmd, char **envp);
+int		print_msg(char *s1, char *s2);
 void	print_error(char *error);
-void	affichage_dans_un_fd(char *s1, char *s2);
+void	free_all(char **tab);
 
 #endif

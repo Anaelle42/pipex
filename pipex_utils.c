@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/06 20:52:22 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/24 17:46:41 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/24 18:38:56 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	print_error(char *error)
 	exit(1);
 }
 
-void	affichage_dans_un_fd(char *s1, char *s2)
+int	print_msg(char *s1, char *s2)
 {
 	char	*str;
 
@@ -26,6 +26,7 @@ void	affichage_dans_un_fd(char *s1, char *s2)
 	ft_putstr_fd(str, 2);
 	ft_putstr_fd("\n", 2);
 	free(str);
+	return (0);
 }
 
 void	free_all(char **tab)
@@ -41,42 +42,4 @@ void	free_all(char **tab)
 		i++;
 	}
 	free(tab);
-}
-
-char	**get_all_paths(char **envp)
-{
-	while (*envp)
-	{
-		if (ft_strnstr(*envp, "PATH=", 5))
-			break ;
-		envp++;
-	}
-	if (*envp)
-		return (ft_split(*envp + 5, ':'));
-	return (NULL);
-}
-
-char	*get_path(char **all_paths, char *cmd)
-{
-	int		i;
-	char	*path;
-	char	*tmp;
-
-	i = 0;
-	while (all_paths && cmd && all_paths[i])
-	{
-		tmp = ft_strjoin(all_paths[i], "/");
-		if (!tmp)
-			return (0);
-		path = ft_strjoin(tmp, cmd);
-		free(tmp);
-		if (!path)
-			return (0);
-		if (access(path, X_OK) == 0)
-			return (path);
-		free(path);
-		i++;
-	}
-	affichage_dans_un_fd("command not found : ", cmd);
-	return (0);
 }

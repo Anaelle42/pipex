@@ -6,28 +6,16 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:13:03 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/24 17:46:01 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/24 18:35:57 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	absolut_vodkapath(char **cmd, char **envp)
-{
-	if (execve(cmd[0], cmd, envp) == -1)
-	{
-		perror(cmd[0]);
-		free_all(cmd);
-		exit(1);
-	}
-}
-
-int	exec_cmd(char *argv, char **envp)
+void	exec_cmd(char *argv, char **envp)
 {
 	int		i;
 	char	**cmd;
-	char	*path;
-	char	**all_paths;
 
 	i = 0;
 	cmd = ft_split(argv, ' ');
@@ -35,7 +23,7 @@ int	exec_cmd(char *argv, char **envp)
 	{
 		if (cmd)
 			free_all(cmd);
-		affichage_dans_un_fd("command not found : ", " ");
+		print_msg("command not found : ", " ");
 		exit(1);
 	}
 	while (argv[i])
@@ -44,25 +32,10 @@ int	exec_cmd(char *argv, char **envp)
 			absolut_vodkapath(cmd, envp);
 		i++;
 	}
-	all_paths = get_all_paths(envp);
-	path = get_path(all_paths, cmd[0]);
-	if (!path)
-	{
-		free_all(all_paths);
-		free_all(cmd);
-		exit(1);
-	}
-	if (execve(path, cmd, envp) == -1)
-	{
-		perror("Command not found");
-		free(path);
-		free_all(all_paths);
-		free_all(cmd);
-	}
-	exit(1);
+	cmd_path(cmd, envp);
 }
 
-int	cmd1(char **argv, int *pipe)
+int	child1(char **argv, int *pipe, char **envp)
 {
 	int	fd;
 
@@ -73,16 +46,18 @@ int	cmd1(char **argv, int *pipe)
 		close(pipe[1]);
 		print_error(argv[1]);
 	}
-	if (dup2(fd, 0) == -1)
-		return (0);
-	if (dup2(pipe[1], 1) == -1)
-		return (0);
+	if (dup2(fd, 0) == -1 || (dup2(pipe[1], 1) == -1))
+	{
+		close(pipe[1]);
+		print_error(argv[1]);
+	}
 	close(fd);
 	close(pipe[1]);
+	exec_cmd(argv[2], envp);
 	return (0);
 }
 
-int	cmd2(char **argv, int *pipe)
+int	child2(char **argv, int *pipe, char **envp)
 {
 	int	fd;
 
@@ -93,12 +68,14 @@ int	cmd2(char **argv, int *pipe)
 		close(pipe[0]);
 		print_error(argv[1]);
 	}
-	if (dup2(pipe[0], 0) == -1)
-		return (0);
-	if (dup2(fd, 1) == -1)
-		return (0);
+	if (dup2(pipe[0], 0) == -1 || (dup2(fd, 1) == -1))
+	{
+		close(pipe[0]);
+		print_error(argv[1]);
+	}
 	close(fd);
 	close(pipe[0]);
+	exec_cmd(argv[3], envp);
 	return (0);
 }
 
@@ -108,30 +85,19 @@ int	main(int argc, char **argv, char **envp)
 	int		fd[2];
 
 	if (argc != 5)
-		return (0);
+		return (print_msg(ERROR1, ARGUMENTS));
 	if (pipe(fd) == -1)
-		return (0);
+		print_error("Pipe");
 	pids[0] = fork();
 	if (pids[0] == -1)
-		return (0);
+		print_error("Fork");
 	if (pids[0] == 0)
-	{
-		// if (!*envp)
-		// 	write(2, "\n", 1);
-		cmd1(argv, fd);
-		exec_cmd(argv[2], envp);
-	}
-	else
-	{
-		pids[1] = fork();
-		if (pids[1] == -1)
-			return (0);
-		if (pids[1] == 0)
-		{
-			cmd2(argv, fd);
-			exec_cmd(argv[3], envp);
-		}
-	}
+		child1(argv, fd, envp);
+	pids[1] = fork();
+	if (pids[1] == -1)
+		print_error("Fork");
+	if (pids[1] == 0)
+		child2(argv, fd, envp);
 	close(fd[0]);
 	close(fd[1]);
 	waitpid(pids[0], NULL, 0);
