@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 18:33:46 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/24 19:11:36 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/28 11:28:56 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ char	**get_all_paths(char **envp)
 	}
 	if (*envp)
 		return (ft_split(*envp + 5, ':'));
-	return (NULL);	
+	return (NULL);
 }
 
 char	*get_path(char **all_paths, char *cmd)
