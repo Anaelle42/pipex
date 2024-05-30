@@ -1,29 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   pipex_utils_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/01 17:57:23 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/24 18:38:20 by ahenault         ###   ########.fr       */
+/*   Created: 2024/05/06 20:52:22 by ahenault          #+#    #+#             */
+/*   Updated: 2024/05/28 12:08:30 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#include "pipex_bonus.h"
 
-# include "libft/libft.h"
-# include <stdio.h>
-# include <sys/wait.h>
+void	print_error(char *error)
+{
+	perror(error);
+	exit(1);
+}
 
-# define ERROR1 "Invalid arguments : "
-# define ARGUMENTS "./pipex infile cmd cmd outfile"
+int	print_msg(char *s1, char *s2)
+{
+	char	*str;
 
-void	absolut_vodkapath(char **cmd, char **envp);
-void	cmd_path(char **cmd, char **envp);
-int		print_msg(char *s1, char *s2);
-void	print_error(char *error);
-void	free_all(char **tab);
+	str = ft_strjoin(s1, s2);
+	ft_putstr_fd(str, 2);
+	ft_putstr_fd("\n", 2);
+	free(str);
+	return (0);
+}
 
-#endif
+void	free_all(char **tab)
+{
+	int	i;
+
+	i = 0;
+	if (!tab)
+		return ;
+	while (tab[i])
+	{
+		free(tab[i]);
+		i++;
+	}
+	free(tab);
+}
