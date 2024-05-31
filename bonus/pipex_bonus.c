@@ -6,11 +6,16 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 19:23:32 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/30 20:31:35 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/31 19:52:52 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
+
+//
+// if (ft_strnstr(argv[1], "here_doc", 8))
+// 	here_doc();
+//
 
 void	exec_cmd(char *argv, char **envp)
 {
@@ -35,114 +40,109 @@ void	exec_cmd(char *argv, char **envp)
 	cmd_path(cmd, envp);
 }
 
-int	child1(char **argv, int *pipe, char **envp)
+int	open_infile(char *argv, int *pipe)
 {
 	int	fd;
 
-	close(pipe[0]);
-	fd = open(argv[1], O_RDONLY);
+	fd = open(argv, O_RDONLY);
 	if (fd == -1)
-	{
-		close(pipe[1]);
-		print_error(argv[1]);
-	}
-	if (dup2(fd, 0) == -1 || (dup2(pipe[1], 1) == -1))
-	{
-		close(pipe[1]);
-		print_error(argv[1]);
-	}
-	close(fd);
-	close(pipe[1]);
-	exec_cmd(argv[2], envp);
-	return (0);
-}
-
-int	childs(char *argv, int *previous_pipe, int *next_pipe, char **envp)
-{
-	if (dup2(previous_pipe[0], 0) == -1 || (dup2(next_pipe[1], 1) == -1))
 	{
 		print_error(argv);
 	}
-	close(previous_pipe[0]);
-	close(previous_pipe[1]);
-	close(next_pipe[0]);
-	close(next_pipe[1]);
-	exec_cmd(argv, envp);
+	*pipe = fd;
+	// close(fd);
 	return (0);
 }
 
-int	child2(char **argv, int *pipe, char **envp)
+void	close_all_fd(t_pipex pipex)
 {
-	int	fd;
+	int	i;
 
-	close(pipe[1]);
-	fd = open(argv[5], O_CREAT | O_RDWR | O_TRUNC, 0644);
-	if (fd == -1)
+	i = 0;
+	while (i < (2 * (pipex.nb_cmd + 1)))
 	{
-		close(pipe[0]);
-		print_error(argv[4]);
+		close(pipex.pipe[i]);
+		i++;
 	}
-	if (dup2(pipe[0], 0) == -1 || (dup2(fd, 1) == -1))
+}
+
+int	childs(t_pipex pipex, char **argv, int i, int index, char **envp)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == 0)
 	{
-		close(pipe[0]);
-		print_error(argv[4]);
+		if (index == 0)
+			open_infile(argv[1], pipex.pipe);
+		if (dup2(*(pipex.pipe + i), 0) == -1 || (dup2(*(pipex.pipe + i + 3),
+					1) == -1))
+		{
+			print_error(argv[index + 2]);
+		}
+		close_all_fd(pipex);
+		exec_cmd(argv[index + 2], envp);
 	}
-	close(fd);
-	close(pipe[0]);
-	exec_cmd(argv[4], envp);
+	return (0);
+}
+
+int	last_one(int argc, char **argv, t_pipex pipex, int *pipe, char **envp)
+{
+	pid_t	pid;
+	int		fd;
+
+	pid = fork();
+	if (pid == 0)
+	{
+		// close(pipe[1]);
+		fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
+		if (fd == -1)
+		{
+			// close(pipe[0]);
+			print_error("argv[argc - 1]");
+		}
+		if (dup2(pipe[0], 0) == -1 || (dup2(fd, 1) == -1))
+		{
+			// close(pipe[0]);
+			print_error("argv[argc - 2]");
+		}
+		close(fd);
+		// close(pipe[0]);
+		close_all_fd(pipex);
+		exec_cmd(argv[argc - 2], envp);
+	}
 	return (0);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	pid_t	pids[3];
-	int		fd[2];
-	int		fd2[2];
+	t_pipex	pipex;
 	int		i;
+	int		a;
 
+	i = 0;
+	a = 0;
 	if (argc < 5)
 		return (print_msg(ERROR1, ARGUMENTS));
-	//
-	if (pipe(fd) == -1)
-		print_error("Pipe");
-	if (pipe(fd2) == -1)
-		print_error("Pipe");
-	//
-	i = 0;
-	pids[i] = fork();
-	if (pids[i] == -1)
-		print_error("Fork");
-	if (pids[i] == 0)
+	pipex.nb_cmd = argc - 4;
+	pipex.pipe = malloc(sizeof(int) * (2 * (pipex.nb_cmd + 1)));
+	while (i < pipex.nb_cmd + 1)
 	{
-		close(fd2[0]);
-		close(fd2[1]);
-		child1(argv, fd, envp);
-	}
-	//
-	{
+		pipe(pipex.pipe + (i * 2));
 		i++;
-		pids[i] = fork();
-		if (pids[i] == 0)
-		{
-			childs(argv[3], fd, fd2, envp);
-		}
 	}
-	//
-	pids[i] = fork();
-	if (pids[i] == -1)
-		print_error("Fork");
-	if (pids[i] == 0)
+	i = 0;
+	while (i < pipex.nb_cmd)
 	{
-		close(fd[0]);
-		close(fd[1]);
-		child2(argv, fd2, envp);
+		childs(pipex, argv, a, i, envp);
+		i++;
+		a += 2;
 	}
-	//
-	close(fd[0]);
-	close(fd[1]);
-	close(fd2[0]);
-	close(fd2[1]);
-	waitpid(pids[0], NULL, 0);
-	waitpid(pids[1], NULL, 0);
-	waitpid(pids[2], NULL, 0);
+	last_one(argc, argv, pipex, pipex.pipe + i + 2, envp);
+	close_all_fd(pipex);
+	while (1)
+	{
+		if (waitpid(-1, NULL, 0) != -1)
+			break ;
+	}
 }
