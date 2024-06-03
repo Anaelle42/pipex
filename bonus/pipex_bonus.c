@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 19:23:32 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/03 18:20:18 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/03 19:27:15 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,16 @@ int	open_infile(t_pipex pipex, char *argv, int *pipe)
 		free(pipex.pipe);
 		print_error(argv);
 	}
-	if (dup2(fd, 0) == -1 || (dup2(pipe[0], 0) == -1))
-	{
-		close(fd);
-		close_all_fd(pipex);
-		free(pipex.pipe);
-		print_error(argv);
-	}
-	close(fd);
+	close(*pipe);
+	*pipe = fd;
+	// if (dup2(fd, 0) == -1 || (dup2(pipe[0], 0) == -1))
+	// {
+	// 	close(fd);
+	// 	close_all_fd(pipex);
+	// 	free(pipex.pipe);
+	// 	print_error(argv);
+	// }
+	// close(fd);
 	return (0);
 }
 
