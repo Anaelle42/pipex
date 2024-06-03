@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/06 20:52:22 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/28 12:08:30 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/03 17:46:42 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,16 @@ void	free_all(char **tab)
 		i++;
 	}
 	free(tab);
+}
+
+void	close_all_fd(t_pipex pipex)
+{
+	int	i;
+
+	i = 0;
+	while (i < (2 * (pipex.nb_cmd + 1)))
+	{
+		close(pipex.pipe[i]);
+		i++;
+	}
 }

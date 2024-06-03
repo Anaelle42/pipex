@@ -6,16 +6,18 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 18:33:46 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/28 12:08:38 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/03 18:08:12 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	absolut_vodkapath(char **cmd, char **envp)
+void	absolut_vodkapath(char **cmd, char **envp, t_pipex pipex)
 {
 	if (execve(cmd[0], cmd, envp) == -1)
 	{
+		close_all_fd(pipex);
+		free(pipex.pipe);
 		perror(cmd[0]);
 		free_all(cmd);
 		exit(1);
@@ -60,7 +62,7 @@ char	*get_path(char **all_paths, char *cmd)
 	return (0);
 }
 
-void	cmd_path(char **cmd, char **envp)
+void	cmd_path(char **cmd, char **envp, t_pipex pipex)
 {
 	char	*path;
 	char	**all_paths;
@@ -71,6 +73,8 @@ void	cmd_path(char **cmd, char **envp)
 	{
 		free_all(all_paths);
 		free_all(cmd);
+		close_all_fd(pipex);
+		free(pipex.pipe);
 		exit(1);
 	}
 	if (execve(path, cmd, envp) == -1)
@@ -79,6 +83,8 @@ void	cmd_path(char **cmd, char **envp)
 		free(path);
 		free_all(all_paths);
 		free_all(cmd);
+		close_all_fd(pipex);
+		free(pipex.pipe);
 	}
 	exit(1);
 }

@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 19:23:32 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/31 19:52:52 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/03 18:20:18 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 // 	here_doc();
 //
 
-void	exec_cmd(char *argv, char **envp)
+void	exec_cmd(char *argv, char **envp, t_pipex pipex)
 {
 	int		i;
 	char	**cmd;
@@ -28,45 +28,43 @@ void	exec_cmd(char *argv, char **envp)
 	{
 		if (cmd)
 			free_all(cmd);
+		close_all_fd(pipex);
+		free(pipex.pipe);
 		print_msg("command not found : ", " ");
 		exit(1);
 	}
 	while (argv[i])
 	{
 		if (argv[i] == '/')
-			absolut_vodkapath(cmd, envp);
+			absolut_vodkapath(cmd, envp, pipex);
 		i++;
 	}
-	cmd_path(cmd, envp);
+	cmd_path(cmd, envp, pipex);
 }
 
-int	open_infile(char *argv, int *pipe)
+int	open_infile(t_pipex pipex, char *argv, int *pipe)
 {
 	int	fd;
 
 	fd = open(argv, O_RDONLY);
 	if (fd == -1)
 	{
+		close_all_fd(pipex);
+		free(pipex.pipe);
 		print_error(argv);
 	}
-	*pipe = fd;
-	// close(fd);
+	if (dup2(fd, 0) == -1 || (dup2(pipe[0], 0) == -1))
+	{
+		close(fd);
+		close_all_fd(pipex);
+		free(pipex.pipe);
+		print_error(argv);
+	}
+	close(fd);
 	return (0);
 }
 
-void	close_all_fd(t_pipex pipex)
-{
-	int	i;
-
-	i = 0;
-	while (i < (2 * (pipex.nb_cmd + 1)))
-	{
-		close(pipex.pipe[i]);
-		i++;
-	}
-}
-
-int	childs(t_pipex pipex, char **argv, int i, int index, char **envp)
+int	childs(t_pipex pipex, char **argv, int index)
 {
 	pid_t	pid;
 
@@ -74,19 +72,21 @@ int	childs(t_pipex pipex, char **argv, int i, int index, char **envp)
 	if (pid == 0)
 	{
 		if (index == 0)
-			open_infile(argv[1], pipex.pipe);
-		if (dup2(*(pipex.pipe + i), 0) == -1 || (dup2(*(pipex.pipe + i + 3),
-					1) == -1))
+			open_infile(pipex, argv[1], pipex.pipe);
+		if (dup2(*(pipex.pipe + (index * 2)), 0) == -1 || (dup2(*(pipex.pipe
+						+ (index * 2) + 3), 1) == -1))
 		{
+			close_all_fd(pipex);
+			free(pipex.pipe);
 			print_error(argv[index + 2]);
 		}
 		close_all_fd(pipex);
-		exec_cmd(argv[index + 2], envp);
+		exec_cmd(argv[index + 2], pipex.envp, pipex);
 	}
 	return (0);
 }
 
-int	last_one(int argc, char **argv, t_pipex pipex, int *pipe, char **envp)
+int	last_one(int argc, char **argv, t_pipex pipex, int *pipe)
 {
 	pid_t	pid;
 	int		fd;
@@ -94,22 +94,23 @@ int	last_one(int argc, char **argv, t_pipex pipex, int *pipe, char **envp)
 	pid = fork();
 	if (pid == 0)
 	{
-		// close(pipe[1]);
 		fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
 		if (fd == -1)
 		{
-			// close(pipe[0]);
-			print_error("argv[argc - 1]");
+			close_all_fd(pipex);
+			free(pipex.pipe);
+			print_error(argv[argc - 1]);
 		}
 		if (dup2(pipe[0], 0) == -1 || (dup2(fd, 1) == -1))
 		{
-			// close(pipe[0]);
-			print_error("argv[argc - 2]");
+			close(fd);
+			close_all_fd(pipex);
+			free(pipex.pipe);
+			print_error(argv[argc - 2]);
 		}
 		close(fd);
-		// close(pipe[0]);
 		close_all_fd(pipex);
-		exec_cmd(argv[argc - 2], envp);
+		exec_cmd(argv[argc - 2], pipex.envp, pipex);
 	}
 	return (0);
 }
@@ -118,14 +119,13 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
 	int		i;
-	int		a;
 
 	i = 0;
-	a = 0;
 	if (argc < 5)
 		return (print_msg(ERROR1, ARGUMENTS));
 	pipex.nb_cmd = argc - 4;
 	pipex.pipe = malloc(sizeof(int) * (2 * (pipex.nb_cmd + 1)));
+	pipex.envp = envp;
 	while (i < pipex.nb_cmd + 1)
 	{
 		pipe(pipex.pipe + (i * 2));
@@ -134,12 +134,12 @@ int	main(int argc, char **argv, char **envp)
 	i = 0;
 	while (i < pipex.nb_cmd)
 	{
-		childs(pipex, argv, a, i, envp);
+		childs(pipex, argv, i);
 		i++;
-		a += 2;
 	}
-	last_one(argc, argv, pipex, pipex.pipe + i + 2, envp);
+	last_one(argc, argv, pipex, pipex.pipe + 2 * (pipex.nb_cmd));
 	close_all_fd(pipex);
+	free(pipex.pipe);
 	while (1)
 	{
 		if (waitpid(-1, NULL, 0) != -1)
