@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:13:03 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/29 17:00:53 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/05/30 21:11:41 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	exec_cmd(char *argv, char **envp)
 	{
 		if (cmd)
 			free_all(cmd);
-		print_msg("command not found : ", " ");
+		print_msg("command not found :", " ");
 		exit(1);
 	}
 	while (argv[i])

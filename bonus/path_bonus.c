@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 18:33:46 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/03 19:09:57 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/04 18:37:01 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ void	absolut_vodkapath(char **cmd, char **envp, t_pipex pipex)
 {
 	if (execve(cmd[0], cmd, envp) == -1)
 	{
+		perror(cmd[0]);
 		close_all_fd(pipex);
 		free(pipex.pipe);
-		perror(cmd[0]);
 		free_all(cmd);
 		exit(1);
 	}

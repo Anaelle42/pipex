@@ -1,5 +1,6 @@
 NAME = pipex
 NAME_BONUS = pipex_bonus
+#bonus = pipex_bonus
 
 SRC = mandatory/pipex.c \
 	mandatory/pipex_utils.c \
@@ -16,6 +17,7 @@ CC = cc
 CFLAGS = -Wall -Werror -Wextra -g
 LIB = libft/libft.a
 
+#all = NAME
 all : $(NAME)
 bonus: $(NAME_BONUS)
 

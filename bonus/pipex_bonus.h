@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/01 17:57:23 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/03 18:06:50 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/04 18:56:23 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include <stdio.h>
 # include <sys/wait.h>
 
-# define ERROR1 "Invalid arguments : "
-# define ARGUMENTS "./pipex infile cmd cmd outfile"
+# define ERROR1 "Invalid arguments. "
+# define ARGUMENTS "Ex: ./pipex infile cmd ... cmd outfile"
 
 typedef struct s_pipex
 {
