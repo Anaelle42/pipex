@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 19:23:32 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/03 19:27:15 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/04 18:18:49 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ int	main(int argc, char **argv, char **envp)
 	free(pipex.pipe);
 	while (1)
 	{
-		if (waitpid(-1, NULL, 0) != -1)
+		if (waitpid(-1, NULL, 0) == -1)
 			break ;
 	}
 }
