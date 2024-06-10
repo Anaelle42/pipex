@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/06 20:52:22 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/03 17:46:42 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 22:29:15 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,14 @@ void	close_all_fd(t_pipex pipex)
 		close(pipex.pipe[i]);
 		i++;
 	}
+}
+
+void	set_pipex(t_pipex *pipex, int argc, char **argv)
+{
+	pipex->argc = argc;
+	pipex->argv = argv;
+	pipex->nb_cmd = argc - 4 - pipex->here_doc;
+	pipex->pipe = malloc(sizeof(int) * (2 * (pipex->nb_cmd + 1)));
+	if (!pipex->pipe)
+		print_error("Malloc");
 }

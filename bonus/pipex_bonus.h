@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/01 17:57:23 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/10 19:51:55 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 22:28:44 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 # define PIPEX_BONUS_H
 
 # include "../libft/libft.h"
-# include <stdio.h>
 # include <sys/wait.h>
-# include <unistd.h>
 
 # define ERROR1 "Invalid arguments. "
 # define ARGUMENTS "Ex: ./pipex infile cmd ... cmd outfile"
@@ -24,14 +22,20 @@
 
 typedef struct s_pipex
 {
-	int		nb_cmd;
-	int		*pipe;
+	int		argc;
+	char	**argv;
 	char	**envp;
 	int		here_doc;
+	int		nb_cmd;
+	int		*pipe;
 }			t_pipex;
 
-void		absolut_vodkapath(char **cmd, char **envp, t_pipex pipex);
-void		cmd_path(char **cmd, char **envp, t_pipex pipex);
+void		is_a_here_doc(t_pipex *pipex, int argc, char **argv);
+void		set_pipex(t_pipex *pipex, int argc, char **argv);
+void		read_heredoc(t_pipex pipex, char *arg, int *pipe);
+void		open_infile(t_pipex pipex, char *arg, int *pipe);
+int			open_outfile(t_pipex pipex);
+void		exec_cmd(t_pipex pipex, char *arg);
 int			print_msg(char *s1, char *s2);
 void		print_error(char *error);
 void		free_all(char **tab);

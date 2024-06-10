@@ -6,15 +6,15 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 18:33:46 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/04 18:37:01 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 21:59:11 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	absolut_vodkapath(char **cmd, char **envp, t_pipex pipex)
+void	absolute_path(t_pipex pipex, char **cmd)
 {
-	if (execve(cmd[0], cmd, envp) == -1)
+	if (execve(cmd[0], cmd, pipex.envp) == -1)
 	{
 		perror(cmd[0]);
 		close_all_fd(pipex);
@@ -62,12 +62,12 @@ char	*get_path(char **all_paths, char *cmd)
 	return (0);
 }
 
-void	cmd_path(char **cmd, char **envp, t_pipex pipex)
+void	cmd_path(char **cmd, t_pipex pipex)
 {
 	char	*path;
 	char	**all_paths;
 
-	all_paths = get_all_paths(envp);
+	all_paths = get_all_paths(pipex.envp);
 	path = get_path(all_paths, cmd[0]);
 	if (!path)
 	{
@@ -77,7 +77,7 @@ void	cmd_path(char **cmd, char **envp, t_pipex pipex)
 		free(pipex.pipe);
 		exit(1);
 	}
-	if (execve(path, cmd, envp) == -1)
+	if (execve(path, cmd, pipex.envp) == -1)
 	{
 		perror("Execve");
 		free(path);
@@ -87,4 +87,29 @@ void	cmd_path(char **cmd, char **envp, t_pipex pipex)
 		free(pipex.pipe);
 	}
 	exit(1);
+}
+
+void	exec_cmd(t_pipex pipex, char *arg)
+{
+	int		i;
+	char	**cmd;
+
+	i = 0;
+	cmd = ft_split(arg, ' ');
+	if (!cmd || !cmd[0])
+	{
+		if (cmd)
+			free_all(cmd);
+		close_all_fd(pipex);
+		free(pipex.pipe);
+		print_msg("command not found : ", " ");
+		exit(1);
+	}
+	while (arg[i])
+	{
+		if (arg[i] == '/')
+			absolute_path(pipex, cmd);
+		i++;
+	}
+	cmd_path(cmd, pipex);
 }

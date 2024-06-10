@@ -6,153 +6,74 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 19:23:32 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/10 20:15:02 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 22:31:24 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	exec_cmd(char *argv, char **envp, t_pipex pipex)
-{
-	int		i;
-	char	**cmd;
-
-	i = 0;
-	cmd = ft_split(argv, ' ');
-	if (!cmd || !cmd[0])
-	{
-		if (cmd)
-			free_all(cmd);
-		close_all_fd(pipex);
-		free(pipex.pipe);
-		print_msg("command not found : ", " ");
-		exit(1);
-	}
-	while (argv[i])
-	{
-		if (argv[i] == '/')
-			absolut_vodkapath(cmd, envp, pipex);
-		i++;
-	}
-	cmd_path(cmd, envp, pipex);
-}
-
-int	open_infile(t_pipex pipex, char *argv, int *pipe)
-{
-	int	fd;
-
-	fd = open(argv, O_RDONLY);
-	if (fd == -1)
-	{
-		close_all_fd(pipex);
-		free(pipex.pipe);
-		print_error(argv);
-	}
-	close(*pipe);
-	*pipe = fd;
-	return (0);
-}
-int	read_heredoc(t_pipex pipex, char **argv, int *pipe)
-{
-	char	*line;
-	int		fd;
-
-	fd = open("tmp", O_CREAT | O_RDWR | O_TRUNC, 0644);
-	while (1)
-	{
-		write(1, "pipe heredoc> ", 14);
-		line = get_next_line(0);
-		if (ft_strncmp(line, argv[2], ft_strlen(line) - 1) == 0
-			&& ft_strlen(line + 1) == ft_strlen(argv[2]))
-			break ;
-		write(fd, line, ft_strlen(line));
-		free(line);
-	}
-	get_next_line(-1);
-	// ft_putstr_fd("\ntadah ", 1);
-	free(line);
-	close(fd);
-	fd = open("tmp", O_RDONLY);
-	if (fd == -1)
-	{
-		close_all_fd(pipex);
-		free(pipex.pipe);
-		print_error("here_doc_tmp");
-	}
-	close(*pipe);
-	*pipe = fd;
-	return (0);
-}
-
-int	childs(t_pipex pipex, char **argv, int index)
+int	childs(t_pipex pipex, int index)
 {
 	pid_t	pid;
 
 	pid = fork();
+	if (pid == -1)
+		print_error("Fork");
 	if (pid == 0)
 	{
 		if (index == 0 && pipex.here_doc == 0)
-			open_infile(pipex, argv[1], pipex.pipe);
+			open_infile(pipex, pipex.argv[1], pipex.pipe);
 		else if (index == 0 && pipex.here_doc == 1)
-			read_heredoc(pipex, argv, pipex.pipe);
+			read_heredoc(pipex, pipex.argv[2], pipex.pipe);
 		if (dup2(*(pipex.pipe + (index * 2)), 0) == -1 || (dup2(*(pipex.pipe
 						+ (index * 2) + 3), 1) == -1))
 		{
 			close_all_fd(pipex);
 			free(pipex.pipe);
-			print_error(argv[index + 2]);
+			print_error(pipex.argv[index + 2]);
 		}
 		close_all_fd(pipex);
-		exec_cmd(argv[index + 2 + pipex.here_doc], pipex.envp, pipex);
+		exec_cmd(pipex, pipex.argv[index + 2 + pipex.here_doc]);
 	}
 	return (0);
 }
 
-int	last_one(int argc, char **argv, t_pipex pipex, int *pipe)
+int	last_child(t_pipex pipex, int *pipe)
 {
 	pid_t	pid;
 	int		fd;
 
 	pid = fork();
+	if (pid == -1)
+		print_error("Fork");
 	if (pid == 0)
 	{
-		if (pipex.here_doc == 0)
-			fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_TRUNC, 0644);
-		else
-			fd = open(argv[argc - 1], O_CREAT | O_RDWR | O_APPEND, 0644);
-		if (fd == -1)
-		{
-			close_all_fd(pipex);
-			free(pipex.pipe);
-			print_error(argv[argc - 1]);
-		}
+		fd = open_outfile(pipex);
 		if (dup2(pipe[0], 0) == -1 || (dup2(fd, 1) == -1))
 		{
 			close(fd);
 			close_all_fd(pipex);
 			free(pipex.pipe);
-			print_error(argv[argc - 2]);
+			print_error(pipex.argv[pipex.argc - 2]);
 		}
 		close(fd);
 		close_all_fd(pipex);
-		exec_cmd(argv[argc - 2], pipex.envp, pipex);
+		exec_cmd(pipex, pipex.argv[pipex.argc - 2]);
 	}
 	return (0);
 }
-int	is_here_doc(t_pipex *pipex, char **argv, int argc)
+
+void	parent_process(t_pipex pipex)
 {
-	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+	close_all_fd(pipex);
+	free(pipex.pipe);
+	while (1)
 	{
-		if (argc < 6)
-		{
-			print_msg(ERROR1, HERE_DOC);
-			exit(1);
-		}
-		pipex->here_doc = 1;
+		if (waitpid(-1, NULL, 0) == -1)
+			break ;
 	}
-	else
-		pipex->here_doc = 0;
-	return (0);
+	if (pipex.here_doc == 1 && unlink("tmp") == -1)
+		print_error("Unlink");
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -164,29 +85,21 @@ int	main(int argc, char **argv, char **envp)
 	if (argc < 5)
 		return (print_msg(ERROR1, ARGUMENTS));
 	pipex.envp = envp;
-	is_here_doc(&pipex, argv, argc);
-	// printf("%i\n", pipex.here_doc);
-	pipex.nb_cmd = argc - 4 - pipex.here_doc;
-	pipex.pipe = malloc(sizeof(int) * (2 * (pipex.nb_cmd + 1)));
+	is_a_here_doc(&pipex, argc, argv);
+	set_pipex(&pipex, argc, argv);
 	while (i < pipex.nb_cmd + 1)
 	{
-		pipe(pipex.pipe + (i * 2));
+		if (pipe(pipex.pipe + (i * 2)) == -1)
+			print_error("Pipe");
 		i++;
 	}
 	i = 0;
 	while (i < pipex.nb_cmd)
 	{
-		childs(pipex, argv, i);
+		childs(pipex, i);
 		i++;
 	}
-	last_one(argc, argv, pipex, pipex.pipe + 2 * (pipex.nb_cmd));
-	close_all_fd(pipex);
-	free(pipex.pipe);
-	while (1)
-	{
-		if (waitpid(-1, NULL, 0) == -1)
-			break ;
-	}
-	if (pipex.here_doc == 1 && unlink("tmp") == -1)
-		print_error("Unlink");
+	last_child(pipex, pipex.pipe + 2 * (pipex.nb_cmd));
+	parent_process(pipex);
+	return (0);
 }
