@@ -6,13 +6,13 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 18:33:46 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/28 11:28:56 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 21:14:33 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	absolut_vodkapath(char **cmd, char **envp)
+void	absolute_path(char **cmd, char **envp)
 {
 	if (execve(cmd[0], cmd, envp) == -1)
 	{

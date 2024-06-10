@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:13:03 by ahenault          #+#    #+#             */
-/*   Updated: 2024/05/30 21:11:41 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 21:14:46 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	exec_cmd(char *argv, char **envp)
 	while (argv[i])
 	{
 		if (argv[i] == '/')
-			absolut_vodkapath(cmd, envp);
+			absolute_path(cmd, envp);
 		i++;
 	}
 	cmd_path(cmd, envp);
