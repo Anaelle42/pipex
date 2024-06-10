@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 15:03:46 by ahenault          #+#    #+#             */
-/*   Updated: 2024/04/03 18:32:07 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/10 17:43:23 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,10 @@ char	*get_next_line(int fd)
 	static char	*stash;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
+	{
+		free(stash);
 		return (NULL);
+	}
 	stash = ft_read(fd, stash);
 	if (!stash)
 		return (NULL);

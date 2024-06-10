@@ -4,11 +4,11 @@ NAME_BONUS = pipex_bonus
 
 SRC = mandatory/pipex.c \
 	mandatory/pipex_utils.c \
-	mandatory/path.c \
+	mandatory/path.c 
 
 SRC_BONUS = bonus/pipex_bonus.c \
 	bonus/pipex_utils_bonus.c \
-	bonus/path_bonus.c \
+	bonus/path_bonus.c 
 
 OBJ =  $(SRC:.c=.o)
 OBJ_BONUS =  $(SRC_BONUS:.c=.o)
