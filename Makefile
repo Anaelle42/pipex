@@ -8,7 +8,8 @@ SRC = mandatory/pipex.c \
 
 SRC_BONUS = bonus/pipex_bonus.c \
 	bonus/pipex_utils_bonus.c \
-	bonus/path_bonus.c 
+	bonus/path_bonus.c \
+	bonus/file_bonus.c 
 
 OBJ =  $(SRC:.c=.o)
 OBJ_BONUS =  $(SRC_BONUS:.c=.o)
