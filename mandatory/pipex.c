@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 16:13:03 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/10 21:45:18 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/11 15:31:07 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ int	child1(char **argv, int *pipe, char **envp)
 	}
 	if (dup2(fd, 0) == -1 || (dup2(pipe[1], 1) == -1))
 	{
+		close(fd);
 		close(pipe[1]);
 		print_error(argv[1]);
 	}
@@ -70,6 +71,7 @@ int	child2(char **argv, int *pipe, char **envp)
 	}
 	if (dup2(pipe[0], 0) == -1 || (dup2(fd, 1) == -1))
 	{
+		close(fd);
 		close(pipe[0]);
 		print_error(argv[4]);
 	}
