@@ -22,11 +22,11 @@ bonus: $(NAME_BONUS)
 
 $(NAME) : $(LIB) $(OBJ)
 	$(CC) $(OBJ) $(LIB) -o $(NAME)
-	@echo "	\033[0;32m \033[7m [DONE!] \033[0m"
+	@echo "\033[0;32m \033[7m [DONE!] \033[0m"
 
 $(NAME_BONUS): $(LIB) $(OBJ_BONUS)
 	$(CC) $(OBJ_BONUS) $(LIB) -o $(NAME_BONUS)
-	@echo "	\033[0;32m \033[7m [DONE!] \033[0m"
+	@echo "\033[0;32m \033[7m [BONUS DONE!] \033[0m"
 
 $(LIB): libft/libft.h
 	make -s -C libft

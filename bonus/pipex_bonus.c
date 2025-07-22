@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 19:23:32 by ahenault          #+#    #+#             */
-/*   Updated: 2024/06/10 22:31:24 by ahenault         ###   ########.fr       */
+/*   Updated: 2025/07/22 21:24:47 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int	childs(t_pipex pipex, int index)
 						+ (index * 2) + 3), 1) == -1))
 		{
 			close_all_fd(pipex);
-			free(pipex.pipe);
 			print_error(pipex.argv[index + 2]);
 		}
 		close_all_fd(pipex);
@@ -53,7 +52,6 @@ int	last_child(t_pipex pipex, int *pipe)
 		{
 			close(fd);
 			close_all_fd(pipex);
-			free(pipex.pipe);
 			print_error(pipex.argv[pipex.argc - 2]);
 		}
 		close(fd);
