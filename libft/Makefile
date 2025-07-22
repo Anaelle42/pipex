@@ -65,7 +65,6 @@ CFLAGS	=	-Wall -Werror -Wextra
 
 $(NAME)	: $(OBJS)
 	@ar rcs $@ $^
-# remplace, cree archive, update
 
 all: $(NAME)
 
@@ -75,8 +74,7 @@ clean	:
 fclean	:	clean
 	@$(RM) $(NAME) $(BONUS)			
 
-re	:	fclean 
-		all
+re	:	fclean all
 
 bonus: $(NAME) $(OBJS_BONUS)
 	ar rcs $(NAME) -o $^

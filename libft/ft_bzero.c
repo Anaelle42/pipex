@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 18:56:50 by ahenault          #+#    #+#             */
-/*   Updated: 2023/11/17 15:59:09 by ahenault         ###   ########.fr       */
+/*   Updated: 2024/06/14 16:34:13 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ void	ft_bzero(void *s, size_t n)
 {
 	unsigned char	*i;
 
+	if (!s)
+		return ;
 	i = s;
 	while (n > 0)
 	{

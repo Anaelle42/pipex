@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 15:03:44 by ahenault          #+#    #+#             */
-/*   Updated: 2024/04/03 18:32:51 by ahenault         ###   ########.fr       */
+/*   Updated: 2025/07/22 20:56:40 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,10 @@ char	*ft_strjoin_gnl(char *s1, char const *s2)
 	}
 	str = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
 	if (!str)
+	{
+		free(s1);
 		return (NULL);
+	}
 	i = ft_strcpy(str, s1);
 	ft_strcpy(&str[i], s2);
 	free(s1);

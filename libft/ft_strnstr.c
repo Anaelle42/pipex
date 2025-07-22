@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 12:35:29 by ahenault          #+#    #+#             */
-/*   Updated: 2023/11/17 16:38:31 by ahenault         ###   ########.fr       */
+/*   Updated: 2025/07/22 19:00:57 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ char	*ft_strnstr(const char *big, const char *little, size_t len)
 	unsigned int	j;
 
 	i = 0;
-	j = 0;
 	if (little[0] == '\0')
 		return ((char *)(&big[i]));
 	while (big[i] && i < len)

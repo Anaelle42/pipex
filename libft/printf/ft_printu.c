@@ -6,7 +6,7 @@
 /*   By: ahenault <ahenault@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/30 15:36:09 by ahenault          #+#    #+#             */
-/*   Updated: 2023/11/30 17:13:26 by ahenault         ###   ########.fr       */
+/*   Updated: 2025/07/22 20:56:08 by ahenault         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ int	ft_printu(unsigned int n)
 	int		len;
 	char	*s;
 
-	len = 0;
 	if (n == 0)
 		len = ft_putstr("0");
 	else
